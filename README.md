@@ -195,6 +195,41 @@ docker exec -it backup rsnapshot alpha
 
 ---
 
+# Project Structure on Target Servers
+
+After deployment, the backup infrastructures are installed on each target machine under the `/opt` directory.
+
+### GPG Backup Server
+
+```text
+/opt/rsnapshot-gpg
+├── Dockerfiles
+├── config
+├── data
+├── docker-compose.yml
+└── README.md
+```
+
+This project implements a **rsnapshot backup architecture with file-level encryption using GPG**.
+
+---
+
+### LUKS Backup Server
+
+```text
+/opt/rsnapshot-luks
+├── Dockerfiles
+├── config
+├── data
+├── docker-compose.yml
+├── encrypted_disk.img
+└── README.md
+```
+
+This project implements a **rsnapshot backup architecture using LUKS disk encryption and filesystem hardlink deduplication**.
+
+---
+
 # Related Backup Projects
 
 This repository focuses on **automating the deployment** of the backup infrastructures.

@@ -1,0 +1,233 @@
+---
+
+# Automated Backup Infrastructure Deployment (Ansible)
+
+This repository provides an **automated deployment framework** for two secure backup architectures:
+
+* **Rsnapshot + GPG encryption**
+* **Rsnapshot + LUKS disk encryption with hardlink deduplication**
+
+The infrastructure is deployed automatically using **Ansible**, simulating a cloud deployment scenario similar to provisioning servers on providers such as **Hetzner**.
+
+Instead of using real VPS instances, this project reproduces the same workflow using **virtual machines** running on **Proxmox / Ludus**.
+
+---
+
+# Architecture Overview
+
+![Infrastructure Architecture](architecture.png)
+
+The deployment infrastructure contains:
+
+* **Ansible Controller (vmcontrol)**
+* **Target Server 1 – GPG Backup**
+* **Target Server 2 – LUKS Backup**
+
+The controller connects to the servers via **SSH** and automatically deploys the backup environments.
+
+---
+
+# Infrastructure Components
+
+### Ansible Controller (vmcontrol)
+
+Responsible for:
+
+* running the Ansible container
+* executing the deployment playbooks
+* connecting to remote servers via SSH
+* cloning and deploying backup projects
+
+---
+
+### Target Server – GPG Backup
+
+Runs the **rsnapshot + GPG backup architecture**.
+
+Characteristics:
+
+* file-level encryption using **GPG**
+* encrypted archives generated on client side
+* rsnapshot retrieves encrypted archives
+* deduplication is not possible due to encryption entropy
+
+---
+
+### Target Server – LUKS Backup
+
+Runs the **rsnapshot + LUKS backup architecture**.
+
+Characteristics:
+
+* disk-level encryption using **LUKS**
+* rsnapshot pulls raw files via SSH
+* filesystem hardlink deduplication enabled
+* optimized disk usage
+
+---
+
+# Target Machine Preparation
+
+Freshly cloned virtual machines may share the same `machine-id`, which can cause network conflicts.
+
+Regenerate it before deployment:
+
+```bash
+sudo rm /etc/machine-id
+sudo systemd-machine-id-setup
+sudo reboot
+```
+
+---
+
+# SSH Configuration
+
+The deployment assumes an environment similar to **cloud VPS providers such as Hetzner**, where administrative access is performed using **root SSH login**.
+
+Edit:
+
+```
+/etc/ssh/sshd_config
+```
+
+Enable:
+
+```
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+```
+
+Restart SSH:
+
+```bash
+systemctl restart ssh
+```
+
+---
+
+# SSH Key Distribution
+
+From the **Ansible controller machine**, copy the SSH public key to the target machines.
+
+```bash
+ssh-copy-id -i ssh_keys/id_rsa.pub root@vmtargetx
+ssh-copy-id -i ssh_keys/id_rsa.pub root@vmtargety
+```
+
+---
+
+# Inventory Configuration
+
+Edit the Ansible inventory file:
+
+```ini
+[app]
+vmtargetx
+vmtargety
+```
+
+These machines will receive the automated deployment.
+
+---
+
+# Deployment
+
+Make the deployment script executable:
+
+```bash
+chmod +x deploy.sh
+```
+
+Run the deployment:
+
+```bash
+./deploy.sh
+```
+
+The deployment will automatically:
+
+* start the Ansible container
+* run the master playbook
+* install required packages
+* install Docker
+* clone backup repositories
+* start the containerized backup infrastructure
+
+---
+
+# Installation Paths on Target Machines
+
+Once the deployment is complete, the backup infrastructures will be installed in the following locations:
+
+```
+/opt/rsnapshot-gpg
+/opt/rsnapshot-luks
+```
+
+Each directory contains the full Docker-based backup environment.
+
+---
+
+# Verification
+
+Connect to a target server:
+
+```bash
+ssh root@vmtargetluks
+```
+
+Navigate to the project directory:
+
+```bash
+cd /opt/rsnapshot-luks
+```
+
+Verify running containers:
+
+```bash
+docker ps
+```
+
+Run a backup test:
+
+```bash
+docker exec -it backup rsnapshot alpha
+```
+
+---
+
+# Related Backup Projects
+
+This repository focuses on **automating the deployment** of the backup infrastructures.
+
+The full backup implementations can be found in the following repositories:
+
+### Rsnapshot + LUKS (disk encryption)
+
+[https://github.com/TsamD/rsnapshot-luks.git](https://github.com/TsamD/rsnapshot-luks.git)
+
+### Rsnapshot + GPG (file encryption)
+
+[https://github.com/TsamD/backup_rsnapshot.git](https://github.com/TsamD/backup_rsnapshot.git)
+
+These repositories contain:
+
+* detailed architecture diagrams
+* backup workflows
+* restore procedures
+* deeper explanations of encryption and deduplication mechanisms.
+
+---
+
+# Technology Stack
+
+* Ansible
+* Docker
+* Docker Compose
+* Rsnapshot
+* Rsync / SSH
+* GPG encryption
+* LUKS disk encryption
+
+---

@@ -1,0 +1,15 @@
+services:
+  ansible:
+    image: alpine/ansible
+    environment:
+      - "ANSIBLE_HOST_KEY_CHECKING=False"
+      - "GITHUB_URL_LUKS=https://github.com/TsamD/rsnapshot-luks.git"
+      - "GITHUB_URL_GPG=https://github.com/TsamD/backup_rsnapshot.git"
+      - "DEPLOY_PATH_LUKS=/opt/rsnapshot-luks"
+      - "DEPLOY_PATH_GPG=/opt/rsnapshot-gpg"
+      - "LUKS_PASSPHRASE=coucou"
+    volumes:
+      - ./ssh_keys:/root/.ssh
+      - ./playbooks:/playbooks
+      - ./inventory.ini:/apps/inventory.ini
+    entrypoint: ["tail", "-f", "/dev/null"]

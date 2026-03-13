@@ -1,0 +1,24 @@
+- name: Deploy GPG backup project
+  hosts: gpg
+  become: true
+  vars:
+    destination_path: '{{ lookup("env", "DEPLOY_PATH_GPG") }}'
+    github_url: '{{ lookup("env", "GITHUB_URL_GPG") }}'
+  tasks:
+    - name: Create project directory
+      file:
+        path: "{{ destination_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Clone the repository
+      git:
+        repo: '{{ github_url }}'
+        dest: "{{ destination_path }}"
+        update: yes
+
+    - name: Run docker compose up -d --build
+      command:
+        cmd: docker compose up -d --build
+        chdir: "{{ destination_path }}"
+      changed_when: true

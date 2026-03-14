@@ -244,9 +244,9 @@ The full backup implementations can be found in the following repositories:
 
 [https://github.com/TsamD/backup_rsnapshot.git](https://github.com/TsamD/backup_rsnapshot.git)
 ![Detailed Infrastructure](architecturegpg.png)
+
 These repositories contain:
 
-* detailed architecture diagrams
 * backup workflows
 * restore procedures
 * deeper explanations of encryption and deduplication mechanisms.

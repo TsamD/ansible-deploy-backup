@@ -239,11 +239,11 @@ The full backup implementations can be found in the following repositories:
 ### Rsnapshot + LUKS (disk encryption)
 
 [https://github.com/TsamD/rsnapshot-luks.git](https://github.com/TsamD/rsnapshot-luks.git)
-
+![Detailed Infrastructure](architectureluks.png)
 ### Rsnapshot + GPG (file encryption)
 
 [https://github.com/TsamD/backup_rsnapshot.git](https://github.com/TsamD/backup_rsnapshot.git)
-
+![Detailed Infrastructure](architecturegpg.png)
 These repositories contain:
 
 * detailed architecture diagrams

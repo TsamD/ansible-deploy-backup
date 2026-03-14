@@ -76,6 +76,7 @@
         path: "{{ luks_mount }}"
         src: "/dev/mapper/{{ luks_name }}"
         fstype: ext4
+        opts: defaults,nofail
         state: mounted
 
     - name: Run docker compose up -d --build
